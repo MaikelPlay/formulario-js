@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>UD 4 - Ejercicio 4</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+   
+  
+    let comunidades = {
+      castilla_la_mancha: [
+        { clave: 'guadalajara', texto: 'Guadalajara' },
+        { clave: 'cuenca', texto: 'Cuenca' },
+        { clave: 'albacete', texto: 'Albacete' },
+        { clave: 'ciudad_real', texto: 'Ciudad Real' },
+        { clave: 'toledo', texto: 'Toledo' }
+      ],
+      comunidad_valenciana: [
+        { clave: 'castellon', texto: 'Castellón' },
+        { clave: 'valencia', texto: 'Valencia' },
+        { clave: 'alicante', texto: 'Alicante' }
+      ],
+      comunidad_madrid: [
+        { clave: 'madrid', texto: 'Madrid' }
+      ]
+    };
+  
+    function validarNombre() {
+      const txtNombre = document.getElementById("txtNombre");
+      if (txtNombre.value.trim() === "") {
+        txtNombre.classList.add("error");
+        return false;
+      } else {
+        txtNombre.classList.remove("error");
+        return true;
+      }
+    }
+  
+    function cargarFoto() {
+      const fileInput = document.getElementById("fileUploader");
+      const archivo = fileInput.files[0];
+      if (archivo && archivo.type.includes("image")) {
+        const lector = new FileReader();
+        lector.onload = procesarArchivo;
+        lector.readAsDataURL(archivo);
+      } else {
+        alert("El archivo debe ser un archivo de imagen.");
+      }
+    }
+  
+    function procesarArchivo(event) {
+      const resultado = event.target.result;
+      const cajaFoto = document.getElementById("cajaFoto");
+      cajaFoto.innerHTML = `<img src="${resultado}" alt="Foto cargada">`;
+    }
+  
+    function mostrarProvincias() {
+      const lstComunidades = document.getElementById("lstComunidades");
+      const lstProvincias = document.getElementById("lstProvincias");
+      const comunidadSeleccionada = lstComunidades.value;
+  
+      lstProvincias.innerHTML = "";
+  
+      if (comunidadSeleccionada !== "0") {
+        const provincias = comunidades[comunidadSeleccionada];
+        provincias.forEach(provincia => {
+          const option = document.createElement("option");
+          option.value = provincia.clave;
+          option.textContent = provincia.texto;
+          lstProvincias.appendChild(option);
+        });
+      }
+    }
+    function recargarPagina() {
+       location.reload(); // Esto recargará la página
+    }
+    function mostrarDatos() {
+        const datos = document.getElementById("datos");
+        const nombre = document.getElementById("txtNombre").value;
+        const email = document.getElementById("txtEmail").value;
+        const edad = document.getElementById("txtEdad").value;
+        const sexo = document.querySelector("input[name='radSexo']:checked").value;
+        const publicidad = document.getElementById("chkPublicidad").checked;
+        const lstProvincias = document.getElementById("lstProvincias");
+        const provinciaSeleccionada = lstProvincias.selectedOptions.length > 0 
+          ? lstProvincias.selectedOptions[0].text 
+          : "Ninguna";
+        const observaciones = document.getElementById("areaObservaciones").value;
+        
+        // Comprobar si la foto está cargada
+        const fotoCargada = document.getElementById("cajaFoto").querySelector("img") !== null;
+
+        // Mostrar los datos
+        datos.innerHTML = `
+          <p>Nombre: ${nombre}</p>
+          <p>E-mail: ${email}</p>
+          <p>Edad: ${edad}</p>
+          <p>Sexo: ${sexo}</p>
+          <p>Foto: ${fotoCargada ? "Foto cargada" : "No se ha cargado ninguna foto"}</p>
+          ${publicidad ? "<p>Recibirá publicidad.</p>" : "<p>No recibirá publicidad.</p>"}
+          <p>Provincia: ${provinciaSeleccionada}</p>
+          <p>Observaciones: ${observaciones}</p>
+          
+        `;
+      }
+
+  
+    function validarFormulario(event) {
+      const nombreValido = validarNombre();
+      const lstProvincias = document.getElementById("lstProvincias");
+      if (!nombreValido || lstProvincias.options.length === 0) {
+        event.preventDefault();
+      }
+    }
+  
+    function main() {
+      document.getElementById("txtNombre").focus();
+      document.getElementById("txtNombre").addEventListener("blur", validarNombre);
+      document.getElementById("txtEdad").addEventListener("keypress", (event) => {
+        if (event.target.value.length >= 2 || !/^\d$/.test(event.key)) {
+          event.preventDefault();
+        }
+      });
+      document.getElementById("fileUploader").addEventListener("change", cargarFoto);
+      document.getElementById("lstComunidades").value = "0";
+      document.getElementById("lstComunidades").addEventListener("change", mostrarProvincias);
+      document.getElementById("btnVerDatos").addEventListener("click", mostrarDatos);
+      document.getElementById("formulario").addEventListener("submit", validarFormulario);
+    }
+    document.addEventListener("DOMContentLoaded", main);
+  </script>
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col1">
+      <h2>FORMULARIO</h2>
+      <form id="formulario" method="post" action="script.php">
+        <label for="txtNombre">
+          <span class="label">Nombre*:</span>
+          <input type="text" id="txtNombre" name="txtNombre" placeholder="Nombre*">
+        </label>
+        <label for="txtEmail">
+          <span class="label">E-mail*: </span>
+          <input type="email" id="txtEmail" name="txtEmail" placeholder="E-mail" required>
+        </label>
+        <label for="txtEdad">
+          <span class="label">Edad*: </span>
+          <input type="number" id="txtEdad" name="txtEdad" value="18" min="18" max="90" step="1" placeholder="Edad" required>
+        </label>
+        <label for="radHombre">
+          <span class="label">Sexo: </span>
+          <input type="radio" id="radHombre" name="radSexo" value="Hombre" checked> <span class="txtRadio">Hombre</span>
+          <input type="radio" id="radMujer" name="radSexo" value="Mujer"> <span class="txtRadio">Mujer</span>
+        </label>
+        <label for="fileUploader">
+          <span class="label">Subir foto:</span>
+          <input type="file" id="fileUploader" name="fileUploader">
+          <div id="cajaFoto"></div>
+        </label>
+        <label for="chkPublicidad">
+          <span class="label">Enviar publicidad: </span>
+          <input type="checkbox" id="chkPublicidad" name="chkPublicidad" value="publicidad">
+        </label>
+        <label for="lstComunidades">
+          <span class="label">Comunidad autónoma*: </span>		
+          <select id="lstComunidades" name="lstComunidades">
+            <option value="0" selected>-- Seleccionar --</option>
+            <option value="castilla_la_mancha">Castilla - La Mancha</option>				
+            <option value="comunidad_valenciana">Comunidad Valenciana</option>
+            <option value="comunidad_madrid">Madrid</option>
+          </select>
+        </label>
+        <label for="lstProvincias">
+          <span class="label">Provincia: </span>		
+          <select id="lstProvincias" name="lstProvincias"></select>
+        </label>		
+        <label for="areaObservaciones">
+          <span class="label">Observaciones: </span>
+          <textarea id="areaObservaciones" name="areaObservaciones"></textarea>
+        </label>
+        <div class="acciones">
+          <input type="reset" id="btnEnviar" name="btnEnviar" class="btn-accion" value="Enviar datos" onclick="recargarPagina()">
+          <input type="button" id="btnVerDatos" name="btnVerDatos" class="btn-accion" value="Ver datos">		
+          <input type="reset" id="btnBorrar" name="btnBorrar" class="btn-accion" value="Borrar datos">	
+        </div>
+      </form>
+    </div>
+    <div class="col2">
+      <h2>RESUMEN DE DATOS</h2>
+      <div id="datos"></div>
+      <div id="cajaFoto"></div>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
